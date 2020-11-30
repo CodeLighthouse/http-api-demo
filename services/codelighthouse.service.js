@@ -38,7 +38,7 @@ class CodeLighthouse {
         const data = {}
 
         // ADD STUFF FROM THE ERROR,
-        data.title = err.name;
+        data.error_type = err.name;
         data.description = err.message;
 
         // ADD RESOURCE GROUP AND NAME IF SPECIFIED
