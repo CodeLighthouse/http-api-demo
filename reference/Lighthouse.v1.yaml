@@ -1,0 +1,521 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "CodeLighthouse HTTP API",
+    "version": "1.0",
+    "contact": {
+      "url": "https://codelighthouse.io/contact",
+      "email": "hello@codelighthouse.io"
+    },
+    "termsOfService": "https://codelighthouse.io/terms",
+    "license": {
+      "name": "MIT"
+    },
+    "description": ""
+  },
+  "servers": [
+    {
+      "url": "https://codelighthouse.io",
+      "description": "Prod"
+    }
+  ],
+  "paths": {
+    "/v1/error": {
+      "post": {
+        "summary": "Error Handler",
+        "tags": [
+          "Error"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "examples": {
+                  "Example": {
+                    "value": {
+                      "message": "Successful"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "description": "The name of the user that was passed"
+                    },
+                    "function": {
+                      "type": "string",
+                      "description": "The name of the function where the error occurred"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "examples": {
+                  "User Does Not Exist": {
+                    "value": {
+                      "message": "User or User Link does not exist."
+                    }
+                  },
+                  "User is Deactivated": {
+                    "value": {
+                      "message": "Error captured by hello@codelighthouse.io, but they are deactivated.  Please reactivate them in the CodeLighthouse admin panel or reassign this function to a new user"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Invalid API Key/Organization Name": {
+                    "value": {
+                      "message": "Please supply a valid API Key and Organization Name"
+                    }
+                  }
+                },
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "examples": {
+                  "Subscription Inactive": {
+                    "value": {
+                      "message": "Your subscription is not currently active.  Please resubscribe to continue service"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "examples": {
+                  "Monthly Error Limit Hit": {
+                    "value": {
+                      "message": "Your organization has already reached the maximum for errors this month.  Please contact support at hello@codelighthouse.io"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "post-v1-error",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "CodeLighthouse"
+            },
+            "in": "header",
+            "required": true,
+            "description": "Your organization name",
+            "name": "organization"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "description": "Your API Key",
+            "required": true,
+            "name": "x-api-key"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "CodeLighthouse"
+            },
+            "in": "header",
+            "description": "Your User Agent (Some common errors will return HTML unless this is set to `CodeLighthouse`)",
+            "name": "User-Agent"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "Lets the application know you're sending it json.  Normally this isn't needed, but if it's omitted and if the JSON that's passed to the application is improperly formatted, then it may cause issues in the returns."
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "",
+                "additionalProperties": false,
+                "properties": {
+                  "error_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "This is the type of error that occured.\n\nexamples: KeyError, AssertionError, ArithmeticError",
+                    "example": "KeyError"
+                  },
+                  "function": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The function where the error occurred",
+                    "example": "broken_function()"
+                  },
+                  "resource_group": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The resource group that this code is being hosted on",
+                    "example": "AWS Lambda"
+                  },
+                  "resource_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The name of the specific resource this code is being hosted on",
+                    "example": "Broken Lambda"
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "This is the description that occurs with the error, for example \"key does not exist\" for a key error",
+                    "example": "Tried to access value that doesn't exist"
+                  },
+                  "email": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The email for the user that you want to be notified in the event of an error",
+                    "format": "email",
+                    "example": "hello@codelighthouse.io"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "description": "This is where you can log the arguments that were passed to the function where the error occured.  This can help with reproducing the error in the future.",
+                    "properties": {
+                      "args": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    }
+                  },
+                  "stack_trace": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "minItems": 0,
+                    "description": "You have the option of sending a stack trace as well.  The variables below this were ones we found helpful, but we allow any JSON to be passed for a stack trace, so you can customize the variables you send.",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "file": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "line": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "lineno": {
+                          "type": "number"
+                        },
+                        "function": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          },
+          "description": ""
+        },
+        "description": "The Error Handler saves the passed information and then, based off of your user preferences, notifies the developer who wrote the code"
+      }
+    },
+    "/v1/error/{error_guid}": {
+      "get": {
+        "summary": "Exposed Error",
+        "tags": [
+          "Error"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": [
+                        "data_dump",
+                        "description",
+                        "error_type",
+                        "function",
+                        "guid",
+                        "organization_name",
+                        "resource_group",
+                        "resource_name",
+                        "timestamp",
+                        "user_real_name"
+                      ],
+                      "properties": {
+                        "data_dump": {
+                          "type": "object",
+                          "required": [
+                            "arguments",
+                            "stack_trace"
+                          ],
+                          "properties": {
+                            "arguments": {
+                              "type": "object",
+                              "required": [
+                                "args"
+                              ],
+                              "properties": {
+                                "args": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object"
+                                  }
+                                }
+                              }
+                            },
+                            "stack_trace": {
+                              "type": "array",
+                              "uniqueItems": true,
+                              "minItems": 1,
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "file": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "function": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "line": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "lineno": {
+                                    "type": "number"
+                                  }
+                                },
+                                "required": [
+                                  "file",
+                                  "function",
+                                  "line",
+                                  "lineno"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "description": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "error_type": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "function": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "guid": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "organization_name": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "resource_group": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "resource_name": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "timestamp": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "user_real_name": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                },
+                "examples": {
+                  "Error": {
+                    "value": {
+                      "error": {
+                        "data_dump": {
+                          "arguments": {
+                            "args": []
+                          },
+                          "stack_trace": [
+                            {
+                              "file": "F:/git/CodeLighthouse/sdk-python/example.py",
+                              "function": "<module>",
+                              "line": "broken_function()",
+                              "lineno": 18
+                            }
+                          ]
+                        },
+                        "description": "'int' object has no attribute 'append'",
+                        "error_type": "AttributeError",
+                        "function": "broken_function",
+                        "guid": "06ef8ead-7bc8-4c36-ac9c-d9ea9fc620e0",
+                        "organization_name": "CodeLighthouse",
+                        "resource_group": "AWS EC2s",
+                        "resource_name": "application core",
+                        "timestamp": "Sat, 28 Nov 2020 01:02:34 GMT",
+                        "user_real_name": "John Doe"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-v1-error-error_guid",
+        "description": "Allows you to retrieve an error from the database",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "CodeLighthouse"
+            },
+            "in": "header",
+            "required": true,
+            "description": "Your organization name",
+            "name": "organization"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "description": "Your API Key",
+            "required": true,
+            "name": "x-api-key"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "CodeLighthouse"
+            },
+            "in": "header",
+            "description": "Your User Agent (Some common errors will return HTML unless this is set to `CodeLighthouse`)",
+            "name": "User-Agent"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "error_guid",
+          "in": "path",
+          "required": true
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {}
+  }
+}
