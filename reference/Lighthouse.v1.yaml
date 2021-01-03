@@ -20,7 +20,7 @@ paths:
         - Error
       responses:
         '201':
-          description: OK
+          description: Created
           headers: {}
           content:
             application/json:
@@ -29,11 +29,17 @@ paths:
                 properties:
                   message:
                     type: string
+                  error_guid:
+                    type: string
+                    format: uuid
+                    description: The guid of the error that was created
                 required:
                   - message
+                  - error_guid
               examples:
                 Example:
                   value:
+                    error_guid: 8cab25e1-e841-4dc1-89f4-7dc2de355904
                     message: Successful
         '400':
           description: Bad Request
