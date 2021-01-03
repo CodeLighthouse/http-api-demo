@@ -19,7 +19,7 @@ paths:
       tags:
         - Error
       responses:
-        '200':
+        '201':
           description: OK
           headers: {}
           content:
